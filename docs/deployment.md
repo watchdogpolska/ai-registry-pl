@@ -132,10 +132,24 @@ produkcyjny z wersją i commitem tagu i wypycha go do
 | pełne wydanie `v1.2.0` | `1.2.0-prod`, `latest-prod` |
 | pre-release `v1.3.0` | `1.3.0-staging`, `latest-staging` |
 
-Zmiana pre-release na pełne wydanie buduje obraz `-prod` dla tego samego tagu.
+Dotyczy to także wydań publikowanych z wersji roboczej (draft). Zmiana
+pre-release na pełne wydanie buduje obraz `-prod` dla tego samego tagu.
+Publikacja pełnego wydania wysyła dwa zdarzenia (`published` i `released`);
+zduplikowany przebieg jest anulowany, więc jeden przebieg ze statusem
+„cancelled” jest w tym przypadku normalny.
+
 Przed zbudowaniem obrazu `-prod` workflow ponownie wykonuje
 `scripts/release.sh check`, więc `latest-prod` nie może wskazać wersji niższej
-od już wydanej. Obrazy `-staging` nie są tak sprawdzane.
+od już wydanej. Z tego powodu nie da się przebudować obrazu `-prod` dla
+starszego wydania. Obrazy `-staging` nie są tak sprawdzane.
+
+Obraz dla istniejącego tagu można też zbudować ręcznie: **Actions → Docker
+Build and Push → Run workflow**, podając tag (`vX.Y.Z`) i wariant (`staging`
+lub `prod`), albo poleceniem:
+
+```bash
+gh workflow run image-build-and-push.yaml -f tag=v1.2.0 -f deployment=staging
+```
 
 Workflow loguje się do rejestru wbudowanym `GITHUB_TOKEN` i nie wymaga
 dodatkowych sekretów. Nowy pakiet w GHCR jest domyślnie prywatny; jego
