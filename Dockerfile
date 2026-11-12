@@ -84,6 +84,13 @@ RUN DJANGO_SECRET_KEY=build-only-not-for-runtime \
 
 RUN chown -R django:django /app
 
+# Release metadata shown in the footer. Declared last so a new version does not
+# invalidate the dependency and collectstatic layers.
+ARG APP_VERSION=dev
+ARG APP_COMMIT=
+ENV APP_VERSION=$APP_VERSION \
+    APP_COMMIT=$APP_COMMIT
+
 USER django
 EXPOSE 8000
 

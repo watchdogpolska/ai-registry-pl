@@ -38,3 +38,6 @@ htmlcov/
 *.dump
 *.sql
 /backups/
+
+# Local Claude Code config
+/.claude/

@@ -1,0 +1,24 @@
+name: Release tag
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  check:
+    name: Validate release tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # checkout may rewrite the triggering tag; re-fetch all tags and main as published.
+      - name: Fetch tags and main
+        run: git fetch --force --tags origin main:refs/remotes/origin/main
+
+      - name: Tag is SemVer, higher than previous releases, and on main
+        run: scripts/release.sh check "$GITHUB_REF_NAME"

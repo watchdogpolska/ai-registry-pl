@@ -44,6 +44,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "home.context_processors.app_version",
             ],
         },
     },
@@ -106,3 +107,12 @@ TAGGIT_STRING_FROM_TAGS = "home.models.tags.custom_tag_string_joiner"
 
 # Keep admin edits immediately visible unless caching is explicitly enabled.
 HOME_PAGE_CACHE_SECONDS = env.int("DJANGO_HOME_PAGE_CACHE_SECONDS", default=0)
+
+# Release version (SemVer git tag, via `git describe`) and commit, baked into
+# the image at build time. AGPL: the footer links to the exact source running.
+APP_VERSION = env("APP_VERSION", default="dev")
+APP_COMMIT = env("APP_COMMIT", default="")
+SOURCE_CODE_URL = env(
+    "SOURCE_CODE_URL",
+    default="https://github.com/watchdogpolska/ai-registry-pl",
+)

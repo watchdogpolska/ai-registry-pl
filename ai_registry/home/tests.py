@@ -2,7 +2,7 @@ import csv
 import io
 from datetime import date
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .models.ai_use import (
@@ -151,3 +151,25 @@ class PublicViewsSmokeTests(TestCase):
         self.assertNotIn("Źródła statusu", headers)
         self.assertNotIn("Numer ogłoszenia BZP", headers)
         self.assertNotIn("Niepublikowane zastosowanie", rows[1])
+
+
+class AppVersionFooterTests(TestCase):
+    @override_settings(
+        APP_VERSION="v1.2.3",
+        APP_COMMIT="abc1234",
+        SOURCE_CODE_URL="https://example.org/repo",
+    )
+    def test_footer_shows_version_linked_to_commit(self):
+        response = self.client.get(reverse("home_view"))
+        self.assertContains(response, "wersja v1.2.3")
+        self.assertContains(response, 'href="https://example.org/repo/tree/abc1234"')
+
+    @override_settings(
+        APP_VERSION="dev",
+        APP_COMMIT="",
+        SOURCE_CODE_URL="https://example.org/repo",
+    )
+    def test_footer_links_repository_without_commit(self):
+        response = self.client.get(reverse("home_view"))
+        self.assertContains(response, "wersja dev")
+        self.assertContains(response, 'href="https://example.org/repo"')
