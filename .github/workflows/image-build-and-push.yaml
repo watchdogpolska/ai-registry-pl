@@ -1,12 +1,28 @@
 name: Docker Build and Push
 
-# `prereleased` -> staging image; `released` -> prod image (fires for a new full
-# release and when a pre-release is promoted to a full release).
+# Release published as pre-release -> staging image; as full release -> prod image.
+# `published` covers drafts (`prereleased` does not fire for them); `released`
+# covers promoting a pre-release to a full release. Publishing a full release
+# sends both events, so the concurrency group drops the duplicate run.
+# `workflow_dispatch` rebuilds an existing tag by hand.
 on:
   release:
     types:
-      - prereleased
+      - published
       - released
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build (vX.Y.Z)"
+        required: true
+        type: string
+      deployment:
+        description: "Image flavour"
+        required: true
+        type: choice
+        options:
+          - staging
+          - prod
 
 permissions:
   contents: read
@@ -14,6 +30,12 @@ permissions:
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}
+  TAG: ${{ github.event.release.tag_name || inputs.tag }}
+  DEPLOYMENT: ${{ inputs.deployment || (github.event.release.prerelease && 'staging' || 'prod') }}
+
+concurrency:
+  group: image-${{ github.event.release.tag_name || inputs.tag }}-${{ inputs.deployment || (github.event.release.prerelease && 'staging' || 'prod') }}
+  cancel-in-progress: true
 
 jobs:
   build-and-push:
@@ -22,33 +44,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: refs/tags/${{ env.TAG }}
           fetch-depth: 0
 
-      - name: Get version and deployment env
-        env:
-          TAG: ${{ github.event.release.tag_name }}
-          ACTION: ${{ github.event.action }}
+      - name: Get version and commit
         run: |
-          if [[ $ACTION == "released" ]]; then
-            DEPLOYMENT="prod"
-          else
-            DEPLOYMENT="staging"
-          fi
+          [[ $TAG =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || {
+            echo "Tag '$TAG' is not vMAJOR.MINOR.PATCH" >&2
+            exit 1
+          }
           {
-            echo "tag=$TAG"
             echo "version=${TAG#v}"
             echo "commit=$(git rev-parse HEAD)"
-            echo "deployment=$DEPLOYMENT"
           } >> "$GITHUB_ENV"
 
       # Prod images must come from a SemVer tag on main that is higher than every
       # earlier release, so latest-prod never moves back to an older version.
       - name: Validate release tag
-        if: env.deployment == 'prod'
+        if: env.DEPLOYMENT == 'prod'
         run: |
           git fetch --force --tags origin main:refs/remotes/origin/main
-          scripts/release.sh check "$tag"
+          scripts/release.sh check "$TAG"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -67,7 +83,7 @@ jobs:
           target: production
           push: true
           build-args: |
-            APP_VERSION=${{ env.tag }}
+            APP_VERSION=${{ env.TAG }}
             APP_COMMIT=${{ env.commit }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
@@ -75,7 +91,7 @@ jobs:
             org.opencontainers.image.version=${{ env.version }}
             org.opencontainers.image.licenses=AGPL-3.0-only
           tags: |
-            ${{ env.IMAGE }}:latest-${{ env.deployment }}
-            ${{ env.IMAGE }}:${{ env.version }}-${{ env.deployment }}
+            ${{ env.IMAGE }}:latest-${{ env.DEPLOYMENT }}
+            ${{ env.IMAGE }}:${{ env.version }}-${{ env.DEPLOYMENT }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
