@@ -1,0 +1,51 @@
+// Kolory i dostosowania wizualne Sieci Obywatelskiej Watchdog Polska.
+:root {
+  --bg-color-light: #ffffff;
+  --bg-color-dark: #161616;
+  --bg-color: #f2f2f0;
+  --bg-color-alt: #e8e8e5;
+  --bg-color-alt2: #f7f7f5;
+  --border-color: #d9d9d5;
+  --border-color-alt: #686868;
+  --accent-color: #8e1832;
+  --shadow-color: #d9d9d5;
+  --watchdog-red: #e3232a;
+  --watchdog-burgundy: #8e1832;
+}
+
+header.home-header .title-col .header-title a,
+.registry-entry .entry-header .entry-title strong {
+  color: var(--watchdog-burgundy);
+}
+
+// Akcenty wymagają czytelnego białego tekstu na ciemnoczerwonym tle.
+.registry-filters .filters-row .info-col em,
+.paginator .page-link.active,
+footer.page-footer .footer-content .button-link {
+  color: #ffffff;
+}
+
+// Odróżnienie elementów interaktywnych od neutralnego tła.
+.registry-filters .filters-row .filter-button:hover,
+.registry-filters .filters-row .filters-col .filter-options .limit-height .filter-link:hover,
+.registry-filters .filters-row .sort-col .sort-options .sort-link:hover,
+.registry-entry .entry-actions .expand-button:hover,
+.registry-entry .entry-collapsible .entry-content .entry-table-col table td:last-child .pill.has-tooltip:hover,
+.registry-entry .entry-collapsible .entry-content .entry-table-col table td:last-child .pill.has-link:hover {
+  background: var(--watchdog-burgundy);
+  color: #ffffff;
+}
+
+// Stopka zachowuje jasne tło i stanowi miejsce na identyfikację organizacji.
+footer.page-footer .footer-content .footer-support .watchdog-logo {
+  display: inline-block;
+  width: min(100%, 220px);
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+}
+
+footer.page-footer .footer-content .footer-support .watchdog-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}

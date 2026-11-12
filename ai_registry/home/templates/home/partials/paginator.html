@@ -1,0 +1,95 @@
+{% load pagination_tags %}
+
+{% if entries.has_other_pages %}
+<div class="paginator">
+  {% if entries.has_previous %}
+  <a href="?{% query_string_replace request page=1 %}#entries"
+  {% else %}
+  <span
+  {% endif %}
+  class="page-link page-first">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 11 8"
+    >
+      <path d="M5 4 10.25.536v6.928L5 4Z" />
+      <path d="M0 4 5.25.536v6.928L0 4Z" />
+    </svg>
+  {% if entries.has_previous %}
+  </a>
+  {% else %}
+  </span>
+  {% endif %}
+
+  {% if entries.has_previous %}
+  <a href="?{% query_string_replace request page=entries.previous_page_number %}#entries"
+  {% else %}
+  <span
+  {% endif %}
+  class="page-link page-prev">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 6 8"
+    >
+      <path d="M0 4 5.25.536v6.928L0 4Z" />
+    </svg>
+  {% if entries.has_previous %}
+  </a>
+  {% else %}
+  </span>
+  {% endif %}
+
+  <div class="page-links">
+  {% for page in entries.paginator.elided_page_range %}
+    {% if page == entries.paginator.ELLIPSIS %}
+      <span class="page-link page-number">…</span>
+    {% elif page == entries.number %}
+      <span class="page-link page-number active">{{ page }}</span>
+    {% else %}
+      <a href="?{% query_string_replace request page=page %}#entries" class="page-link page-number">{{ page }}</a>
+    {% endif %}
+  {% endfor %}
+  </div>
+
+  {% if entries.has_next %}
+  <a href="?{% query_string_replace request page=entries.next_page_number %}#entries"
+  {% else %}
+  <span
+  {% endif %}
+  class="page-link page-next">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 6 8"
+    >
+      <path d="M6 4 .75 7.464V.536L6 4Z" />
+    </svg>
+  {% if entries.has_next %}
+  </a>
+  {% else %}
+  </span>
+  {% endif %}
+
+  {% if entries.has_next %}
+  <a href="?{% query_string_replace request page=entries.paginator.num_pages %}#entries"
+  {% else %}
+  <span
+  {% endif %}
+  class="page-link page-last">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 11 8"
+    >
+      <path d="M6 4 .75 7.464V.536L6 4Z" />
+      <path d="M11 4 5.75 7.464V.536L11 4Z" />
+    </svg>
+  {% if entries.has_next %}
+  </a>
+  {% else %}
+  </span>
+  {% endif %}
+</div>
+{% endif %}

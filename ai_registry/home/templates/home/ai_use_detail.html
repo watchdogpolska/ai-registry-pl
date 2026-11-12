@@ -1,0 +1,24 @@
+{% extends "home/base.html" %}
+{% load static %}
+
+{% block content %}
+<main class="page-content">
+  <div class="page-bg-solid">
+    <div class="container">
+
+      <div class="registry-entries">
+        {% include "home/partials/ai_use.html" with standalone=True %}
+      </div>
+
+      <a class="registry-back-link" href="{% url 'home_view' %}">
+        <img
+          src="{% static 'home/img/register.svg' %}"
+          alt=""
+        >
+        <span>IDŹ DO REJESTRU</span>
+      </a>
+
+    </div>
+  </div>
+</main>
+{% endblock content %}

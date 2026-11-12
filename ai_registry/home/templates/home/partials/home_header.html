@@ -1,0 +1,49 @@
+{% load static i18n %}
+<header class="home-header">
+  <div class="title-col">
+    <h1 class="header-title">
+      <a href="/">Rejestr AI</a>
+    </h1>
+    <div class="header-mobile-image">
+      <img src="{% static "home/img/register.svg" %}" alt="">
+    </div>
+      <p class="header-subtitle">
+        <span>
+          Zbieramy dane o wykorzystaniu systemów sztucznej inteligencji w polskim
+          sektorze publicznym i na ich podstawie tworzymy kompleksowy, ogólnodostępny
+          rejestr. Domagamy się pełnej odpowiedzialności i przejrzystości w
+          wykorzystywaniu AI w sektorze publicznym.
+        </span>
+      </p>
+    <hr />
+    <form method="get" action="#entries">
+      <label class="header-search">
+        <span>SZUKAJ W REJESTRZE</span>
+        <input type="text" name="search" id="search" value="{{ search }}" />
+      </label>
+    </form>
+  </div>
+  <div class="info-col">
+    <div class="header-image">
+      <img src="{% static "home/img/register.svg" %}" alt="">
+    </div>
+  <div class="header-description">
+    <p>
+      Jedyną drogą do budowania publicznego zaufania do uczciwości, niezawodności
+      i zgodności z prawem zautomatyzowanych systemów wykorzystywanych w sektorze
+      publicznym jest ich pełna przejrzystość.
+    </p>
+    <p>
+      Opinia publiczna ma prawo do zrozumiałych i pełnych informacji o działaniu
+      tych systemów oraz o sposobach podejmowania przez organy decyzji, które
+      wpływają na życie ludzi.
+    </p>
+    <p>
+      Dotychczas w Polsce brakowało systematycznie zebranych informacji o sposobach
+      i powodach wykorzystywania systemów sztucznej inteligencji w sektorze
+      publicznym oraz o ich wpływie na społeczeństwo i poszczególne osoby.
+      Rejestr wykorzystania AI pomaga wypełnić tę lukę.
+    </p>
+  </div>
+  </div>
+</header>

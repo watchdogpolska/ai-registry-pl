@@ -1,0 +1,106 @@
+{% load i18n static %}
+<footer class="page-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-description">
+        <h3>Rejestr wykorzystania AI w polskim sektorze publicznym</h3>
+
+        {% url 'csv_export' as export_url %}
+
+        <p>
+          Rejestr jest pierwszym uporządkowanym zbiorem danych o wykorzystaniu
+          systemów sztucznej inteligencji w polskim sektorze publicznym. Dane
+          pozyskaliśmy, analizując publicznie dostępne źródła oraz kierując do
+          organów publicznych wnioski o udostępnienie informacji publicznej.
+        </p>
+
+        <p>
+          Zbiór danych nie jest zamknięty; będziemy go regularnie aktualizować
+          i uzupełniać.
+        </p>
+
+        <hr />
+
+        <p>
+          Staramy się publikować dokładne i weryfikowalne informacje. Luki lub
+          błędy w rejestrze mogą wynikać z braku przejrzystości i niewystarczającej
+          komunikacji ze strony organów publicznych, co utrudnia zbieranie danych.
+        </p>
+
+        <p>
+          Uważamy, że polskie organy i instytucje publiczne korzystają także z
+          innych narzędzi AI, o których opinia publiczna nie jest informowana.
+          Jeśli masz informacje, które powinny znaleźć się w rejestrze, albo dane
+          wskazujące na możliwe nieścisłości, napisz do nas na
+          <a href="mailto:biuro@siecobywatelska.pl">biuro@siecobywatelska.pl</a>.
+        </p>
+
+        <p>
+          <a href="{{ export_url }}">Pobierz dane w formacie CSV</a>
+        </p>
+      </div>
+
+      <div class="footer-separator">
+        <hr />
+      </div>
+
+      <div class="footer-support">
+        <a class="watchdog-logo" href="https://siecobywatelska.pl/" target="_blank" rel="noopener noreferrer" aria-label="Strona Sieci Obywatelskiej Watchdog Polska">
+          <img src="{% static 'home/img/watchdog-logo.svg' %}" alt="Logo Sieci Obywatelskiej Watchdog Polska">
+        </a>
+        <p>
+          Rejestr wykorzystania AI prowadzi<br />
+          <a
+            href="https://siecobywatelska.pl/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="about-link"
+          >Sieć Obywatelska Watchdog Polska</a>
+        </p>
+
+        <hr />
+
+        <p>
+          Kontakt:<br />
+          <a href="mailto:biuro@siecobywatelska.pl">
+            biuro@siecobywatelska.pl
+          </a>
+        </p>
+
+        <hr />
+
+        <p>
+          Wesprzyj naszą pracę.
+          <a
+            href="https://siecobywatelska.pl/wesprzyj-nas/#wspieraj_siec"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="button-link"
+          >
+            <span>WESPRZYJ</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 10 10"
+            >
+              <path
+                d="M8.457 2.532v1.974H7.47V2.532h.987v-.987h-.986V.558h-.987v.987h-.988v.987H4.51v-.987h-.987V.558h-.987v.987h-.989v.987H.56v1.974H.558v.987h.987v.988h.988v.987h.987v.987h.988v.987h.987v-.987h.987v-.987h.987V6.48h.987v-.988h.987v-2.96h-.986ZM6.482 5.493v-.987h.987v.987h-.987Z"
+              />
+            </svg>
+          </a>
+        </p>
+
+        <hr />
+
+        <p>
+          Serwis powstał na bazie otwartego projektu stworzonego przez
+          <a
+            href="https://danesjenovdan.si/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Danes je nov dan</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>

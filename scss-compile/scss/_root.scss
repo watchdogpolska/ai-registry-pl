@@ -1,0 +1,24 @@
+@use "breakpoints";
+
+:root {
+  --font-main: "wf-bricolage-grotesque", system-ui;
+  --font-mono: "wf-ibm-plex-mono", monospace;
+
+  --bg-color-light: #fff;
+  --bg-color-dark: #000;
+  --bg-color: #f3f8f3;
+  --bg-color-alt: #dfeadf;
+  --bg-color-alt2: #e9efe8;
+  --border-color: #a2a5a2;
+  --border-color-alt: #545454;
+  --accent-color: #b8ffb8;
+  --shadow-color: #d1d5d1;
+
+  --page-gutter: 1.25rem;
+  --page-width: 80rem;
+  --footer-width: calc(var(--page-width) - 9rem);
+
+  @include breakpoints.media-breakpoint-up(md) {
+    --page-gutter: 2.5rem;
+  }
+}

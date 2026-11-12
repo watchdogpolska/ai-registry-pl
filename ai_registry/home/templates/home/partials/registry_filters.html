@@ -1,0 +1,106 @@
+{% load i18n pagination_tags %}
+<div class="registry-filters">
+  <div class="filters-row">
+    <div class="filters-col">
+      <button type="button" class="filter-button">
+        <span>FILTRUJ</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          viewBox="0 0 6 8"
+        >
+          <path d="M6 4 .75 7.464V.536L6 4Z" />
+        </svg>
+      </button>
+      {% for selected_area in filters.selected_areas %}
+      <a href="?{% query_string_remove_comma_entry request area=selected_area.0 %}#entries" class="filter-button remove-filter-link">
+        <strong>{{ selected_area.1 }}</strong>
+        <i>&times;</i>
+      </a>
+      {% endfor %}
+      {% for selected_tag in filters.selected_tags %}
+      <a href="?{% query_string_remove_comma_entry request tag=selected_tag.0 %}#entries" class="filter-button remove-filter-link">
+        <strong>{{ selected_tag.1 }}</strong>
+        <i>&times;</i>
+      </a>
+      {% endfor %}
+      {% for selected_institution in filters.selected_institutions %}
+      <a href="?{% query_string_remove_comma_entry request institution=selected_institution.0 %}#entries" class="filter-button remove-filter-link">
+        <strong>{{ selected_institution.1 }}</strong>
+        <i>&times;</i>
+      </a>
+      {% endfor %}
+      <div class="filter-options" style="display: none;">
+        <div class="limit-height">
+          <div class="filter-category">Obszary:</div>
+          {% for area in filters.areas %}
+          <div>
+            {% if area in filters.selected_areas %}
+            <a href="?{% query_string_remove_comma_entry request area=area.0 %}#entries" class="filter-link">
+              <span>{{ area.1 }}</span>
+              <i>&times;</i>
+            </a>
+            {% else %}
+            <a href="?{% query_string_add_comma_entry request area=area.0 %}#entries" class="filter-link">
+              <span>{{ area.1 }}</span>
+            </a>
+            {% endif %}
+          </div>
+          {% endfor %}
+          <div class="filter-category">Tagi:</div>
+          {% for tag in filters.tags %}
+          <div>
+            {% if tag in filters.selected_tags %}
+            <a href="?{% query_string_remove_comma_entry request tag=tag.0 %}#entries" class="filter-link">
+              <span>{{ tag.1 }}</span>
+              <i>&times;</i>
+            </a>
+            {% else %}
+            <a href="?{% query_string_add_comma_entry request tag=tag.0 %}#entries" class="filter-link">
+              <span>{{ tag.1 }}</span>
+            </a>
+            {% endif %}
+          </div>
+          {% endfor %}
+          <div class="filter-category">Instytucje:</div>
+          {% for institution in filters.institutions %}
+          <div>
+            {% if institution in filters.selected_institutions %}
+            <a href="?{% query_string_remove_comma_entry request institution=institution.0 %}#entries" class="filter-link">
+              <span>{{ institution.1 }}</span>
+              <i>&times;</i>
+            </a>
+            {% else %}
+            <a href="?{% query_string_add_comma_entry request institution=institution.0 %}#entries" class="filter-link">
+              <span>{{ institution.1 }}</span>
+            </a>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="info-col">
+      <span>Liczba zastosowań AI w rejestrze: <em>{{ all_entries_count }}</em></span>
+      <hr />
+    </div>
+    <div class="sort-col">
+      <button type="button" class="filter-button sort-button">
+        <span>SORTUJ WEDŁUG:</span>
+        {% for sort_option in sort_options %}
+          {% if sort_option.0 == sort_query %}
+          <strong>{{ sort_option.1 }}</strong>
+          {% endif %}
+        {% endfor %}
+      </button>
+      <div class="sort-options" style="display: none;">
+        {% for sort_option in sort_options %}
+          {% if sort_option.0 != sort_query %}
+          <a href="?{% query_string_replace request sort=sort_option.0 page=1 %}#entries" class="sort-link">{{ sort_option.1 }}</a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <hr />
+</div>

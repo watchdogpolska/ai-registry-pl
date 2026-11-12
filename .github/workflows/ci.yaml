@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  django:
+    name: Django + MySQL 8.4
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: ai_registry
+          MYSQL_ROOT_PASSWORD: root-test-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot-test-password"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      DJANGO_SETTINGS_MODULE: ai_registry.settings.test
+      DATABASE_URL: mysql://root:root-test-password@127.0.0.1:3306/ai_registry
+      DJANGO_HOME_PAGE_CACHE_SECONDS: "0"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install MySQL build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-libmysqlclient-dev pkg-config
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/dev.txt
+
+      - name: Check Python formatting
+        run: |
+          black ai_registry --check --diff
+          isort ai_registry --check --diff --profile black
+
+      - name: Check migrations
+        working-directory: ai_registry
+        run: python manage.py makemigrations --check
+
+      - name: Apply migrations
+        working-directory: ai_registry
+        run: python manage.py migrate --noinput
+
+      - name: Validate committed registry snapshot
+        working-directory: ai_registry
+        run: python manage.py loaddata data/registry.json
+
+      - name: Run Django checks
+        working-directory: ai_registry
+        run: python manage.py check
+
+      - name: Run tests
+        working-directory: ai_registry
+        run: python manage.py test
+
+  docker:
+    name: Production Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Build production image
+        run: docker build --target production -t ai-registry:test .
+
+      - name: Check production settings and static manifest
+        run: |
+          docker run --rm \
+            -e DJANGO_SECRET_KEY='ci-only-production-check-secret-key-with-more-than-fifty-characters-123456789' \
+            -e DJANGO_ALLOWED_HOSTS=localhost \
+            -e DJANGO_CSRF_TRUSTED_ORIGINS=https://localhost \
+            -e DATABASE_URL=mysql://check:check@localhost/check \
+            ai-registry:test python manage.py check --deploy
+
+          docker run --rm \
+            -e DJANGO_SECRET_KEY='ci-only-production-check-secret-key-with-more-than-fifty-characters-123456789' \
+            -e DJANGO_ALLOWED_HOSTS=localhost \
+            -e DJANGO_CSRF_TRUSTED_ORIGINS=https://localhost \
+            -e DATABASE_URL=mysql://check:check@localhost/check \
+            ai-registry:test python manage.py shell -c \
+            "from django.contrib.staticfiles.storage import staticfiles_storage; print(staticfiles_storage.url('home/css/bundle.css'))"

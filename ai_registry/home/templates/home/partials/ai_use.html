@@ -1,0 +1,394 @@
+{% load pagination_tags %}
+
+<div class="registry-entry{% if not standalone %} collapsed{% endif %}">
+  <div class="entry-header">
+    <h2 class="entry-title{% if entry.purpose %} has-purpose{% endif %}">
+      <strong>
+        {% if standalone %}
+          {{ entry.name }}
+        {% else %}
+          <a
+            href="{% url 'ai_use_detail' entry.public_id %}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ entry.name }}
+          </a>
+        {% endif %}
+      </strong>
+      {% if entry.purpose %}
+        <span>{{ entry.purpose }}</span>
+      {% endif %}
+    </h2>
+    <div class="entry-time-in-use">
+      {% if entry.use_start %}od {{ entry.use_start|date:"j.m.Y" }}{% endif %}
+      {% if entry.use_end %} – {{ entry.use_end|date:"j.m.Y" }}{% endif %}
+    </div>
+  </div>
+  <hr />
+
+  <div class="entry-collapsible">
+    <div class="entry-content">
+
+      <div class="entry-table-col">
+        <table>
+          <tr>
+            <td>Instytucja:</td>
+            <td>
+              <a
+                href="{% url 'home_view' %}?{% query_string_replace request institution=entry.deployment.institution.slug page=1 %}#entries"
+                class="pill has-link"
+              >{{ entry.deployment.institution.name }}</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td>System AI:</td>
+            <td><div class="pill">{{ entry.deployment.ai_system.name }}</div></td>
+          </tr>
+
+          {% with latest_status=entry.status_observations.all.0 %}
+          <tr>
+            <td>Status użycia na dzień:</td>
+            <td>
+              {% if latest_status %}
+              <div class="pill">
+                {{ latest_status.get_usage_status_display }} / {{ latest_status.observed_on|date:"j.m.Y" }}
+              </div>
+              {% if latest_status.comment %}
+              <div class="pill has-tooltip" tabindex="0">
+                <span>?</span>
+                <div class="pill-tooltip-container" style="display: none">
+                  <div class="pill-tooltip">{{ latest_status.comment }}</div>
+                </div>
+              </div>
+              {% endif %}
+              {% else %}
+              <div class="pill">Brak informacji</div>
+              {% endif %}
+            </td>
+          </tr>
+
+          <tr>
+            <td>Stanowisko instytucji: czy to AI?</td>
+            <td>
+              {% if latest_status %}
+              <div class="pill">{{ latest_status.get_authority_ai_status_display }}</div>
+              {% else %}
+              <div class="pill">Brak informacji</div>
+              {% endif %}
+            </td>
+          </tr>
+          {% endwith %}
+
+          {% if entry.deployment.ai_system.developer %}
+          <tr>
+            <td>Twórca / producent:</td>
+            <td><div class="pill">{{ entry.deployment.ai_system.developer }}</div></td>
+          </tr>
+          {% endif %}
+
+          {% if entry.deployment.supplier %}
+          <tr>
+            <td>Dostawca:</td>
+            <td><div class="pill">{{ entry.deployment.supplier }}</div></td>
+          </tr>
+          {% endif %}
+
+          <tr>
+            <td>Ryzyko AI Act:</td>
+            <td>
+              <div class="pill">{{ entry.get_risk_classification_display }}</div>
+              {% if entry.risk_comment %}
+              <div class="pill has-tooltip" tabindex="0">
+                <span>?</span>
+                <div class="pill-tooltip-container" style="display: none">
+                  <div class="pill-tooltip">{{ entry.risk_comment }}</div>
+                </div>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+
+          <tr>
+            <td>GPAI:</td>
+            <td>
+              <div class="pill">{{ entry.deployment.get_gpai_status_display }}</div>
+              {% if entry.deployment.gpai_models %}
+              <div class="pill has-tooltip" tabindex="0">
+                <span>?</span>
+                <div class="pill-tooltip-container" style="display: none">
+                  <div class="pill-tooltip">{{ entry.deployment.gpai_models }}</div>
+                </div>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+
+          {% if entry.areas.all|length %}
+          <tr>
+            <td>Obszary:</td>
+            <td>
+              {% for area in entry.areas.all %}
+              <a
+                href="{% url 'home_view' %}?{% query_string_replace request area=area.slug page=1 %}#entries"
+                class="pill has-link"
+              >{{ area.name }}</a>
+              {% endfor %}
+            </td>
+          </tr>
+          {% endif %}
+
+          {% if entry.tags.all|length %}
+          <tr>
+            <td>Tagi:</td>
+            <td>
+              {% for tag in entry.tags.all %}
+              <a
+                href="{% url 'home_view' %}?{% query_string_replace request tag=tag.slug page=1 %}#entries"
+                class="pill has-link"
+              >{{ tag.name }}</a>
+              {% endfor %}
+            </td>
+          </tr>
+          {% endif %}
+        </table>
+
+        <table>
+          {% if entry.deployment.implementation_cost %}
+          <tr>
+            <td>Koszt wytworzenia i wdrożenia:</td>
+            <td>
+              <div class="pill">{{ entry.deployment.implementation_cost }}</div>
+              {% if entry.deployment.implementation_cost_comment %}
+              <div class="pill has-tooltip" tabindex="0">
+                <span>?</span>
+                <div class="pill-tooltip-container" style="display: none">
+                  <div class="pill-tooltip">{{ entry.deployment.implementation_cost_comment }}</div>
+                </div>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+          {% endif %}
+
+          {% if entry.deployment.annual_maintenance_cost %}
+          <tr>
+            <td>Roczny koszt utrzymania:</td>
+            <td>
+              <div class="pill">{{ entry.deployment.annual_maintenance_cost }}</div>
+              {% if entry.deployment.annual_maintenance_cost_comment %}
+              <div class="pill has-tooltip" tabindex="0">
+                <span>?</span>
+                <div class="pill-tooltip-container" style="display: none">
+                  <div class="pill-tooltip">{{ entry.deployment.annual_maintenance_cost_comment }}</div>
+                </div>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+          {% endif %}
+
+          {% if entry.deployment.license_start or entry.deployment.license_end %}
+          <tr>
+            <td>Licencja:</td>
+            <td>
+              <div class="pill">
+                {% if entry.deployment.license_start %}{{ entry.deployment.license_start|date:"j.m.Y" }}{% else %}?{% endif %}
+                –
+                {% if entry.deployment.license_end %}{{ entry.deployment.license_end|date:"j.m.Y" }}{% else %}?{% endif %}
+              </div>
+              {% if entry.deployment.license_comment %}
+              <div class="pill has-tooltip" tabindex="0">
+                <span>?</span>
+                <div class="pill-tooltip-container" style="display: none">
+                  <div class="pill-tooltip">{{ entry.deployment.license_comment }}</div>
+                </div>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+          {% endif %}
+
+          <tr>
+            <td>Instrukcja / podręcznik:</td>
+            <td>
+              <div class="pill">{{ entry.deployment.get_user_documentation_status_display }}</div>
+              {% if entry.deployment.user_documentation_comment %}
+              <div class="pill has-tooltip" tabindex="0">
+                <span>?</span>
+                <div class="pill-tooltip-container" style="display: none">
+                  <div class="pill-tooltip">{{ entry.deployment.user_documentation_comment }}</div>
+                </div>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+
+          <tr>
+            <td>Publiczna wiedza:</td>
+            <td>
+              <div class="pill">{{ entry.deployment.get_public_information_status_display }}</div>
+              {% if entry.deployment.public_information_comment %}
+              <div class="pill has-tooltip" tabindex="0">
+                <span>?</span>
+                <div class="pill-tooltip-container" style="display: none">
+                  <div class="pill-tooltip">{{ entry.deployment.public_information_comment }}</div>
+                </div>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+
+          <tr>
+            <td>Zamówienie publiczne:</td>
+            <td>
+              <div class="pill">{{ entry.deployment.get_public_procurement_status_display }}</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td>DPIA – ocena skutków dla ochrony danych:</td>
+            <td>
+              {% if entry.dpia_assessments %}
+                {% with assessment=entry.dpia_assessments.0 %}
+                <div class="pill">{{ assessment.get_status_display }}</div>
+                {% if assessment.comment %}
+                <div class="pill has-tooltip" tabindex="0">
+                  <span>?</span>
+                  <div class="pill-tooltip-container" style="display: none">
+                    <div class="pill-tooltip">{{ assessment.comment }}</div>
+                  </div>
+                </div>
+                {% endif %}
+                {% endwith %}
+              {% else %}
+                <div class="pill">Brak informacji</div>
+              {% endif %}
+            </td>
+          </tr>
+
+          <tr>
+            <td>FRIA – ocena wpływu na prawa podstawowe:</td>
+            <td>
+              {% if entry.fria_assessments %}
+                {% with assessment=entry.fria_assessments.0 %}
+                <div class="pill">{{ assessment.get_status_display }}</div>
+                {% if assessment.comment %}
+                <div class="pill has-tooltip" tabindex="0">
+                  <span>?</span>
+                  <div class="pill-tooltip-container" style="display: none">
+                    <div class="pill-tooltip">{{ assessment.comment }}</div>
+                  </div>
+                </div>
+                {% endif %}
+                {% endwith %}
+              {% else %}
+                <div class="pill">Brak informacji</div>
+              {% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="entry-text-col">
+        {% if entry.description %}
+        <div class="entry-description">
+          {{ entry.description|linebreaks }}
+        </div>
+        {% endif %}
+
+        {% if entry.ai_use_description %}
+        <div class="entry-description">
+          <p><strong>Użycie sztucznej inteligencji</strong></p>
+          {{ entry.ai_use_description|linebreaks }}
+        </div>
+        {% endif %}
+
+        {% if entry.process_name or entry.process_description or entry.process_stage or entry.decision_or_action or entry.ai_role or entry.human_role %}
+        <div class="entry-description">
+          <p><strong>Proces / procedura</strong></p>
+          {% if entry.process_name %}<p><strong>Nazwa:</strong> {{ entry.process_name }}</p>{% endif %}
+          {% if entry.process_description %}<p>{{ entry.process_description }}</p>{% endif %}
+          {% if entry.process_stage %}<p><strong>Etap:</strong> {{ entry.process_stage }}</p>{% endif %}
+          {% if entry.decision_or_action %}<p><strong>Decyzja lub działanie:</strong> {{ entry.decision_or_action }}</p>{% endif %}
+          {% if entry.ai_role %}<p><strong>Rola AI:</strong> {{ entry.ai_role }}</p>{% endif %}
+          {% if entry.human_role %}<p><strong>Rola człowieka:</strong> {{ entry.human_role }}</p>{% endif %}
+        </div>
+        {% endif %}
+
+        {% if entry.deployment.ai_system.purpose or entry.deployment.ai_system.description %}
+        <div class="entry-description">
+          <p><strong>O systemie {{ entry.deployment.ai_system.name }}</strong></p>
+          {% if entry.deployment.ai_system.purpose %}<p>{{ entry.deployment.ai_system.purpose }}</p>{% endif %}
+          {% if entry.deployment.ai_system.description %}{{ entry.deployment.ai_system.description|linebreaks }}{% endif %}
+        </div>
+        {% endif %}
+
+        {% if entry.sources.all|length %}
+        <div class="entry-sources">
+          <div class="entry-sources-title">Źródła informacji o zastosowaniu:</div>
+          <ul>
+            {% for source in entry.sources.all %}
+            <li>
+              {% if source.url %}
+              <a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.title }}</a>
+              {% else %}
+              {{ source.title }}
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if entry.deployment.sources.all|length %}
+        <div class="entry-sources">
+          <div class="entry-sources-title">Źródła informacji o wdrożeniu:</div>
+          <ul>
+            {% for source in entry.deployment.sources.all %}
+            <li>
+              {% if source.url %}
+              <a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.title }}</a>
+              {% else %}
+              {{ source.title }}
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if entry.deployment.ai_system.sources.all|length %}
+        <div class="entry-sources">
+          <div class="entry-sources-title">Źródła informacji o systemie:</div>
+          <ul>
+            {% for source in entry.deployment.ai_system.sources.all %}
+            <li>
+              {% if source.url %}
+              <a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.title }}</a>
+              {% else %}
+              {{ source.title }}
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+  {% if not standalone %}
+  <div class="entry-actions">
+    <button
+      type="button"
+      class="expand-button"
+      data-toggle-text="ZAMKNIJ -"
+    >
+      WIĘCEJ INFORMACJI +
+    </button>
+  </div>
+  {% endif %}
+</div>

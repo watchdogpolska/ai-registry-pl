@@ -1,0 +1,21 @@
+{
+  "name": "scss-compile",
+  "version": "0.0.0",
+  "author": "Danes je nov dan",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "css-compile": "sass --style expanded --source-map --embed-sources --no-error-css --load-path=node_modules scss/:static/css/",
+    "css-prefix": "postcss --replace static/css/bundle.css --use autoprefixer --map",
+    "build": "npm-run-all css-compile css-prefix",
+    "dev": "nodemon -e scss -x \"yarn build\""
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "nodemon": "^3.1.10",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "sass": "^1.93.3"
+  }
+}

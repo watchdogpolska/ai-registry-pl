@@ -1,0 +1,148 @@
+@use "breakpoints";
+
+header.home-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-block: 2.5rem 4rem;
+
+  @include breakpoints.media-breakpoint-up(md) {
+    flex-direction: row;
+    padding-block: 4.5rem 8.5rem;
+  }
+
+  .title-col,
+  .info-col {
+    flex: 1;
+  }
+
+  .title-col {
+    .header-title {
+      max-width: 260px;
+      margin-bottom: 2rem;
+      font-family: var(--font-main);
+      font-size: 2.875rem;
+      line-height: 0.85;
+      font-weight: 500;
+
+      @include breakpoints.media-breakpoint-up(sm) {
+        font-size: 3.1rem;
+      }
+
+      @include breakpoints.media-breakpoint-up(md) {
+        max-width: none;
+        margin-bottom: 1rem;
+        font-size: 3.1rem;
+      }
+
+      @include breakpoints.media-breakpoint-up(lg) {
+        font-size: 3.3rem;
+      }
+
+      @include breakpoints.media-breakpoint-up(xl) {
+        font-size: 4.25rem;
+      }
+
+      a {
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .header-mobile-image {
+      position: absolute;
+      top: 1.125rem;
+      right: 0;
+      width: 112px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        transform: translateX(0.6875rem);
+      }
+
+      @include breakpoints.media-breakpoint-up(md) {
+        display: none;
+      }
+    }
+
+    .header-subtitle {
+      margin-top: 0;
+      font-family: var(--font-main);
+      font-size: 1.25rem;
+      line-height: 1.2;
+
+      @include breakpoints.media-breakpoint-up(md) {
+        font-size: 1.5rem;
+      }
+    }
+
+    hr {
+      margin-block: 2rem;
+
+      @include breakpoints.media-breakpoint-up(md) {
+        margin-block: 2.5rem;
+      }
+    }
+
+    .header-search {
+      display: flex;
+      flex-direction: column;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      line-height: 1.3;
+
+      input {
+        margin-top: 0.5rem;
+        padding: 0.3em 0.6em;
+        background: var(--bg-color-light);
+        border: 0.5px solid var(--border-color-alt);
+        border-radius: 10px;
+        font-family: var(--font-main);
+        font-weight: 400;
+        font-size: 1.65rem;
+        line-height: 1.65rem;
+      }
+    }
+  }
+
+  .info-col {
+    display: none;
+    align-items: center;
+    grid-template-columns: 1fr;
+
+    @include breakpoints.media-breakpoint-up(md) {
+      display: grid;
+      grid-template-columns: 0.31fr 0.11fr 0.58fr;
+    }
+
+    .header-image {
+      display: block;
+      grid-column: 1 / span 2;
+      grid-row: 1;
+      z-index: 1;
+
+      img {
+        width: 100%;
+        transform: translateY(-3%) translateX(-10%);
+        padding: 1.75rem;
+      }
+    }
+
+    .header-description {
+      grid-column: 2 / span 2;
+      grid-row: 1;
+      padding: 2rem;
+      background: var(--bg-color-light);
+      border: 1px dashed var(--border-color);
+      font-family: var(--font-main);
+      font-size: 1rem;
+      line-height: 1.2;
+      font-weight: 300;
+      color: var(--border-color-alt);
+    }
+  }
+}

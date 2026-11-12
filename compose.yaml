@@ -1,0 +1,54 @@
+# Local development environment.
+volumes:
+  mysql-data:
+
+services:
+  mysql:
+    image: mysql:8.4
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_polish_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ai_registry
+      MYSQL_USER: ai_registry
+      MYSQL_PASSWORD: changeme
+      MYSQL_ROOT_PASSWORD: changeme-root
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pchangeme-root"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  django:
+    build:
+      context: .
+      target: development
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./ai_registry:/app:delegated,rw
+      - ./ai_registry/ipython_config.py:/tmp/ipython/profile_default/ipython_config.py:delegated,rw
+    ports:
+      - "8001:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: ai_registry.settings.dev
+      DJANGO_RUNSERVER_HIDE_WARNING: "true"
+      DATABASE_URL: mysql://ai_registry:changeme@mysql:3306/ai_registry
+      IPYTHONDIR: /tmp/ipython
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  scss-compile:
+    build:
+      context: .
+      target: scss-development
+    command: yarn dev
+    volumes:
+      - ./ai_registry/home/static/home/css:/build/static/css:delegated,rw
+      - ./scss-compile/scss:/build/scss:delegated,rw

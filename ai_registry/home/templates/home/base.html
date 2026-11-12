@@ -1,0 +1,38 @@
+{% load static i18n %}<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="apple-touch-icon" href="{% static 'home/favicons/watchdog-apple-touch-icon.png' %}">
+  <link rel="icon" type="image/png" href="{% static 'home/favicons/watchdog-favicon.png' %}">
+  <title>Rejestr wykorzystania AI w polskim sektorze publicznym</title>
+  <meta name="twitter:title" content="Rejestr wykorzystania AI w polskim sektorze publicznym">
+  <meta property="og:title" content="Rejestr wykorzystania AI w polskim sektorze publicznym">
+
+  <meta name="description" content="Rejestr wykorzystania systemów sztucznej inteligencji w polskim sektorze publicznym.">
+  <meta name="twitter:description" content="Rejestr wykorzystania systemów sztucznej inteligencji w polskim sektorze publicznym.">
+  <meta property="og:description" content="Rejestr wykorzystania systemów sztucznej inteligencji w polskim sektorze publicznym.">
+
+  <meta name="twitter:image" content="{% static 'home/img/OG-registerUI.png' %}">
+  <meta property="og:image" content="{% static 'home/img/OG-registerUI.png' %}">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="website">
+
+  <link rel="stylesheet" href="{% static 'home/fonts/selfhosted.css' %}" />
+  <link rel="stylesheet" href="{% static 'home/css/bundle.css' %}" />
+
+</head>
+<body>
+  <div class="page-wrapper">
+    {% block content %}
+      <main class="page-content">No content</main>
+    {% endblock content %}
+    {% block footer %}
+      {% include "home/partials/footer.html" %}
+    {% endblock footer %}
+  </div>
+  <script type="module" src="{% static 'home/js/main.js' %}"></script>
+</body>
+</html>

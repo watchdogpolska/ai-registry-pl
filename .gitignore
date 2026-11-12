@@ -1,0 +1,40 @@
+# Local editor / OS files
+/.vscode/
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Django runtime/build output
+/ai_registry/staticfiles/
+/ai_registry/media/
+*.log
+
+# Compiled frontend assets
+/ai_registry/home/static/home/css/bundle.css
+/ai_registry/home/static/home/css/bundle.css.map
+/scss-compile/node_modules/
+/scss-compile/static/css/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Database dumps / local backups
+*.dump
+*.sql
+/backups/

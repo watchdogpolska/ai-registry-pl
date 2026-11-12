@@ -1,0 +1,2 @@
+# Convenience entry point for production installs.
+-r requirements/production.txt

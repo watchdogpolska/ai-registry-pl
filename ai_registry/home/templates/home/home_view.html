@@ -1,0 +1,28 @@
+{% extends "home/base.html" %}
+
+{% block content %}
+  <main class="page-content">
+    <div class="page-bg-gradient">
+      <div class="container">
+        {% include "home/partials/home_header.html" %}
+      </div>
+    </div>
+    <div class="page-bg-solid">
+      <div class="container">
+        <a name="entries" class="named-anchor"></a>
+        {% include "home/partials/registry_filters.html" %}
+        <div class="registry-entries">
+        {% for entry in entries %}
+          {% include "home/partials/ai_use.html" %}
+        {% endfor %}
+        </div>
+        <div class="paginator-container">
+          {% include "home/partials/paginator.html" %}
+        </div>
+        <div class="bottom-container">
+          {% include "home/partials/bottom_description.html" %}
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock content %}

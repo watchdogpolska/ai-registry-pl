@@ -1,0 +1,67 @@
+/* Bricolage Grotesque */
+@font-face {
+  font-display: swap;
+  font-family: 'wf-bricolage-grotesque';
+  font-style: normal;
+  font-weight: 300;
+  src: url('./bricolage-grotesque/bricolage-grotesque-v7-latin_latin-ext-300.woff2') format('woff2'),
+       url('./bricolage-grotesque/bricolage-grotesque-v7-latin_latin-ext-300.ttf') format('truetype');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'wf-bricolage-grotesque';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./bricolage-grotesque/bricolage-grotesque-v7-latin_latin-ext-regular.woff2') format('woff2'),
+       url('./bricolage-grotesque/bricolage-grotesque-v7-latin_latin-ext-regular.ttf') format('truetype');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'wf-bricolage-grotesque';
+  font-style: normal;
+  font-weight: 500;
+  src: url('./bricolage-grotesque/bricolage-grotesque-v7-latin_latin-ext-500.woff2') format('woff2'),
+       url('./bricolage-grotesque/bricolage-grotesque-v7-latin_latin-ext-500.ttf') format('truetype');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'wf-bricolage-grotesque';
+  font-style: normal;
+  font-weight: 600;
+  src: url('./bricolage-grotesque/bricolage-grotesque-v7-latin_latin-ext-600.woff2') format('woff2'),
+       url('./bricolage-grotesque/bricolage-grotesque-v7-latin_latin-ext-600.ttf') format('truetype');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'wf-bricolage-grotesque';
+  font-style: normal;
+  font-weight: 700;
+  src: url('./bricolage-grotesque/bricolage-grotesque-v7-latin_latin-ext-700.woff2') format('woff2'),
+       url('./bricolage-grotesque/bricolage-grotesque-v7-latin_latin-ext-700.ttf') format('truetype');
+}
+
+/* IBM Plex Mono */
+@font-face {
+  font-display: swap;
+  font-family: 'wf-ibm-plex-mono';
+  font-style: normal;
+  font-weight: 300;
+  src: url('./ibm-plex-mono/ibm-plex-mono-v19-latin_latin-ext-300.woff2') format('woff2'),
+       url('./ibm-plex-mono/ibm-plex-mono-v19-latin_latin-ext-300.ttf') format('truetype');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'wf-ibm-plex-mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./ibm-plex-mono/ibm-plex-mono-v19-latin_latin-ext-regular.woff2') format('woff2'),
+       url('./ibm-plex-mono/ibm-plex-mono-v19-latin_latin-ext-regular.ttf') format('truetype');
+}
+@font-face {
+  font-display: swap;
+  font-family: 'wf-ibm-plex-mono';
+  font-style: normal;
+  font-weight: 600;
+  src: url('./ibm-plex-mono/ibm-plex-mono-v19-latin_latin-ext-600.woff2') format('woff2'),
+       url('./ibm-plex-mono/ibm-plex-mono-v19-latin_latin-ext-600.ttf') format('truetype');
+}
