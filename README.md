@@ -15,9 +15,12 @@ funkcji **„Pobierz dane w formacie CSV”**.
 ## Uruchomienie lokalne
 
 Środowisko deweloperskie korzysta z Docker Compose, Django i MySQL 8.4.
+Projekt rozwijany jest wyłącznie w kontenerach: nie instaluj lokalnie Pythona,
+pip, Node ani yarn. Wszystkie polecenia uruchamiane są przez `make` (nakładka
+na `docker compose`). Lista dostępnych poleceń: `make help`.
 
 ```bash
-docker compose up --build
+make up
 ```
 
 Aplikacja jest następnie dostępna pod adresem
@@ -27,7 +30,7 @@ Przy pierwszym uruchomieniu lokalnym baza jest pusta. Aby załadować startowy
 snapshot danych dołączony do repozytorium, uruchom w drugim terminalu:
 
 ```bash
-docker compose exec django python manage.py loaddata data/registry.json
+make loaddata
 ```
 
 Snapshot należy ładować tylko do nowej lub celowo wyczyszczonej bazy.
@@ -35,9 +38,13 @@ Snapshot należy ładować tylko do nowej lub celowo wyczyszczonej bazy.
 Przydatne polecenia:
 
 ```bash
-docker compose run --rm django python manage.py migrate
-docker compose run --rm django python manage.py createsuperuser
-docker compose run --rm django python manage.py test
+make migrate
+make createsuperuser
+make test                       # lub np. make test T=home.test_char32_uuid
+make lint                       # kontrola formatowania (black + isort), jak w CI
+make format                     # automatyczne formatowanie
+make ci                         # zestaw kontroli z CI uruchomiony lokalnie
+make manage ARGS="..."          # dowolne inne polecenie manage.py
 ```
 
 Watcher SCSS działa jako osobny serwis deweloperski i zapisuje `bundle.css`
@@ -114,14 +121,14 @@ Z zaufanej bazy zawierającej stan rejestru przeznaczony do opublikowania można
 wygenerować nowy snapshot:
 
 ```bash
-cd ai_registry
-python manage.py export_registry_data
+docker run --rm --env-file .env -v "$PWD/ai_registry/data:/app/data" \
+  ai-registry python manage.py export_registry_data
 ```
 
 W lokalnym środowisku Docker:
 
 ```bash
-docker compose exec django python manage.py export_registry_data
+make export
 ```
 
 Domyślny wynik to `ai_registry/data/registry.json`. Eksport obejmuje modele

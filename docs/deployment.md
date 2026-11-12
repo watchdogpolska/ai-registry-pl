@@ -181,15 +181,15 @@ Z zaufanej bazy zawierającej stan rejestru przeznaczony do opublikowania
 uruchom z katalogu głównego repozytorium:
 
 ```bash
-cd ai_registry
-python manage.py export_registry_data
+docker run --rm --env-file .env -v "$PWD/ai_registry/data:/app/data" \
+  ai-registry python manage.py export_registry_data
 ```
 
-Polecenie zapisuje `data/registry.json`. W lokalnym środowisku Docker
-odpowiednikiem jest:
+Polecenie zapisuje `ai_registry/data/registry.json`. W lokalnym środowisku
+Docker odpowiednikiem jest:
 
 ```bash
-docker compose exec django python manage.py export_registry_data
+make export
 ```
 
 Eksport obejmuje modele z aplikacji `home` i ich relacje. Pomija wewnętrzne

@@ -38,3 +38,8 @@ htmlcov/
 *.dump
 *.sql
 /backups/
+
+# Shared Claude Code project config (re-included over global **/.claude/* ignores)
+!/.claude/
+!/.claude/settings.json
+!/.claude/hooks/
