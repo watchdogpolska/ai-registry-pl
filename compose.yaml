@@ -40,6 +40,9 @@ services:
       DJANGO_RUNSERVER_HIDE_WARNING: "true"
       DATABASE_URL: mysql://ai_registry:changeme@mysql:3306/ai_registry
       IPYTHONDIR: /tmp/ipython
+      # Code is bind-mounted, so the version is passed at runtime (see Makefile).
+      APP_VERSION: ${APP_VERSION:-dev}
+      APP_COMMIT: ${APP_COMMIT:-}
     depends_on:
       mysql:
         condition: service_healthy

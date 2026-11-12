@@ -78,17 +78,56 @@ produkcyjnej.
 ### Publiczny dostęp do kodu źródłowego
 
 Przed publicznym uruchomieniem serwisu należy udostępnić odpowiadający wdrożeniu
-kod źródłowy w publicznym repozytorium lub innym publicznie dostępnym miejscu
-oraz dodać w serwisie widoczny link do tego źródła. Docelowy adres należy
-uzupełnić po utworzeniu repozytorium używanego przez organizację do publikacji
-kodu.
+kod źródłowy w publicznym repozytorium. Stopka serwisu zawiera link „Kod
+źródłowy” wraz z numerem wersji. Link prowadzi do commita, z którego zbudowano
+obraz (`APP_COMMIT`), a gdy commit nie jest znany — do repozytorium. Domyślny
+adres repozytorium to <https://github.com/watchdogpolska/ai-registry-pl>; można
+go zmienić zmienną `SOURCE_CODE_URL`.
+
+## Wersjonowanie
+
+Wydania oznaczane są tagami git w formacie SemVer: `vMAJOR.MINOR.PATCH`
+(np. `v1.2.0`, bez sufiksów typu `-rc.1`). Wersja i commit są zapisywane
+w obrazie podczas budowania i wyświetlane w stopce.
+
+Tag wydania tworzy się poleceniem `make release`, które samo wylicza kolejny
+numer na podstawie najwyższego opublikowanego tagu:
+
+```bash
+make release BUMP=patch      # v1.2.0 -> v1.2.1 (lub minor / major)
+make release VERSION=2.0.0   # jawny numer, musi być wyższy od ostatniego
+git push origin v1.2.1
+```
+
+Polecenie pobiera aktualne tagi z `origin` i odmawia utworzenia tagu, jeżeli:
+numer nie jest wyższy od najwyższego istniejącego wydania, katalog roboczy
+zawiera niezatwierdzone zmiany, bieżąca gałąź to nie `main`, lokalny `main`
+różni się od `origin/main` albo bieżący commit ma już tag wydania.
+
+Po wypchnięciu tagu workflow `.github/workflows/release-tag.yaml` sprawdza
+ponownie, że tag ma poprawny format, jest wyższy od poprzednich wydań i wskazuje
+commit z gałęzi `main`. GitHub nie blokuje samego wypchnięcia tagu, więc
+czerwony wynik tego workflow oznacza tag do usunięcia i wydanie do powtórzenia.
+
+Aby tagi wydań były niezmienne (bez możliwości przesunięcia lub usunięcia
+istniejącej wersji), administrator repozytorium powinien dodać w GitHub
+**Settings → Rules → Rulesets** regułę dla tagów `v*` z włączonymi opcjami
+*Restrict updates* i *Restrict deletions* oraz ograniczeniem tworzenia tagów
+(*Restrict creations*) do osób odpowiedzialnych za wydania.
+
+Pomiędzy wydaniami `git describe` daje wersję w postaci
+`v1.2.0-3-gabc1234` (3 commity po tagu), a dla niezatwierdzonych zmian dodaje
+`-dirty`. Bez przekazania argumentów obraz ma wersję `dev`.
 
 ## Budowanie obrazu aplikacji
 
-Z katalogu głównego repozytorium:
+Z katalogu głównego repozytorium (z checkoutu git, aby ustalić wersję):
 
 ```bash
-docker build --target production -t ai-registry .
+docker build --target production \
+  --build-arg APP_VERSION="$(git describe --tags --always --dirty)" \
+  --build-arg APP_COMMIT="$(git rev-parse HEAD)" \
+  -t ai-registry .
 ```
 
 Budowanie obrazu automatycznie:
@@ -218,9 +257,12 @@ zasobów bez modyfikowania kodu aplikacji.
 
 `compose.production.yaml` pokazuje aplikację wraz z kontenerem MySQL 8.4.
 
-Dla nowej instalacji można wykonać:
+Dla nowej instalacji można wykonać (zmienne `APP_VERSION` i `APP_COMMIT`
+przekazywane są do budowania obrazu, zob. „Wersjonowanie”):
 
 ```bash
+export APP_VERSION="$(git describe --tags --always --dirty)"
+export APP_COMMIT="$(git rev-parse HEAD)"
 docker compose -f compose.production.yaml build
 docker compose -f compose.production.yaml up -d mysql
 

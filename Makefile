@@ -10,6 +10,11 @@ RUN     := $(COMPOSE) run --rm
 DJANGO  := $(RUN) django
 MANAGE  := $(DJANGO) python manage.py
 
+# App version from SemVer git tags (vMAJOR.MINOR.PATCH), e.g. v0.1.0 or
+# v0.1.0-3-gabc1234-dirty between releases. Exported for docker compose.
+export APP_VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
+export APP_COMMIT  ?= $(shell git rev-parse HEAD 2>/dev/null)
+
 # Tests need a DB user that can create test_* databases; the dev `ai_registry`
 # user cannot, so tests use the (dev-only) MySQL root account.
 MYSQL_ROOT_PASSWORD := changeme-root
@@ -26,12 +31,14 @@ ISORT_ARGS := --profile black --src /nonexistent
 
 T    ?=
 ARGS ?=
+BUMP ?=
+VERSION ?=
 
 .DEFAULT_GOAL := help
 .PHONY: help build up start stop down restart logs ps \
         manage migrate makemigrations migrations-check createsuperuser \
         loaddata export shell bash dbshell \
-        test format lint check css ci
+        test format lint check css ci version release
 
 help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -124,3 +131,10 @@ ci: lint migrations-check check ## Run the CI checks locally (lint, migrations, 
 		sh -c "python manage.py migrate --noinput && python manage.py loaddata data/registry.json"
 	$(COMPOSE) exec mysql mysql -uroot -p$(MYSQL_ROOT_PASSWORD) -e "DROP DATABASE $(CI_DB);"
 	$(MAKE) test
+
+version: ## Print the app version that builds will be stamped with
+	@echo "$(APP_VERSION) ($(APP_COMMIT))"
+
+release: ## Tag the next release on main: make release BUMP=patch|minor|major (or VERSION=x.y.z)
+	@test -n "$(VERSION)$(BUMP)" || { echo "usage: make release BUMP=patch|minor|major  (or VERSION=x.y.z)" >&2; exit 1; }
+	@scripts/release.sh release $(or $(VERSION),$(BUMP))

@@ -67,6 +67,10 @@ odpowiada usłudze zdefiniowanej w `compose.production.yaml`:
 cp .env.example .env
 # uzupełnij .env
 
+# wersja wyświetlana w stopce (tagi SemVer vX.Y.Z, zob. docs/deployment.md)
+export APP_VERSION="$(git describe --tags --always --dirty)"
+export APP_COMMIT="$(git rev-parse HEAD)"
+
 docker compose -f compose.production.yaml build
 docker compose -f compose.production.yaml up -d mysql
 docker compose -f compose.production.yaml run --rm django \

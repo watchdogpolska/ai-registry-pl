@@ -34,6 +34,9 @@ services:
     build:
       context: .
       target: production
+      args:
+        APP_VERSION: ${APP_VERSION:-dev}
+        APP_COMMIT: ${APP_COMMIT:-}
     env_file:
       - .env
     ports:
