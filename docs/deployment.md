@@ -119,9 +119,31 @@ Pomiędzy wydaniami `git describe` daje wersję w postaci
 `v1.2.0-3-gabc1234` (3 commity po tagu), a dla niezatwierdzonych zmian dodaje
 `-dirty`. Bez przekazania argumentów obraz ma wersję `dev`.
 
+## Obrazy z GitHub Container Registry
+
+Opublikowanie wydania (GitHub **Releases → Draft a new release** dla
+istniejącego tagu `vX.Y.Z`) uruchamia workflow
+`.github/workflows/image-build-and-push.yaml`. Workflow buduje obraz
+produkcyjny z wersją i commitem tagu i wypycha go do
+`ghcr.io/watchdogpolska/ai-registry-pl`:
+
+| Wydanie | Tagi obrazu |
+| --- | --- |
+| pełne wydanie `v1.2.0` | `1.2.0-prod`, `latest-prod` |
+| pre-release `v1.3.0` | `1.3.0-staging`, `latest-staging` |
+
+Zmiana pre-release na pełne wydanie buduje obraz `-prod` dla tego samego tagu.
+Przed zbudowaniem obrazu `-prod` workflow ponownie wykonuje
+`scripts/release.sh check`, więc `latest-prod` nie może wskazać wersji niższej
+od już wydanej. Obrazy `-staging` nie są tak sprawdzane.
+
+Workflow loguje się do rejestru wbudowanym `GITHUB_TOKEN` i nie wymaga
+dodatkowych sekretów. Nowy pakiet w GHCR jest domyślnie prywatny; jego
+widoczność ustawia się w ustawieniach pakietu w organizacji.
+
 ## Budowanie obrazu aplikacji
 
-Z katalogu głównego repozytorium (z checkoutu git, aby ustalić wersję):
+Lokalnie, z katalogu głównego repozytorium (z checkoutu git, aby ustalić wersję):
 
 ```bash
 docker build --target production \
