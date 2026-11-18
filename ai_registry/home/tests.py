@@ -78,6 +78,43 @@ class PublicViewsSmokeTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Testowe zastosowanie")
 
+    def test_usage_period_on_list_and_detail_pages(self):
+        start = date(2025, 12, 1)
+        end = date(2026, 11, 18)
+        cases = (
+            (start, None, "od 1.12.2025"),
+            (None, end, "do 18.11.2026"),
+            (start, end, "1.12.2025&nbsp;– 18.11.2026"),
+            (None, None, None),
+        )
+        urls = (
+            reverse("home_view"),
+            reverse("ai_use_detail", args=[self.ai_use.public_id]),
+        )
+        for use_start, use_end, expected in cases:
+            self.ai_use.use_start = use_start
+            self.ai_use.use_end = use_end
+            self.ai_use.save(update_fields=["use_start", "use_end"])
+            for url in urls:
+                with self.subTest(url=url, use_start=use_start, use_end=use_end):
+                    response = self.client.get(url)
+                    self.assertContains(response, "Status użycia na dzień:")
+                    if expected is None:
+                        self.assertNotContains(response, "Okres stosowania")
+                        self.assertNotContains(response, 'class="entry-time-in-use"')
+                    else:
+                        self.assertContains(
+                            response,
+                            f"""
+                            <div class="entry-time-in-use">
+                                <span class="entry-time-label">Okres stosowania</span>
+                                <span class="entry-time-dates">{expected}</span>
+                            </div>
+                            """,
+                            html=True,
+                            count=1,
+                        )
+
     def test_detail_filter_links_return_to_registry(self):
         response = self.client.get(
             reverse("ai_use_detail", args=[self.ai_use.public_id])
