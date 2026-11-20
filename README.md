@@ -10,7 +10,9 @@ zainicjalizowania nowej instalacji. Nie jest gwarantowany jako aktualny względe
 działającego serwisu i może być aktualizowany tylko okazjonalnie.
 
 Aktualny publiczny stan rejestru można pobrać z działającej strony za pomocą
-funkcji **„Pobierz dane w formacie CSV”**.
+funkcji **„Pobierz cały rejestr (XLSX)”**. Eksport pod adresem
+`/export/data.xlsx` obejmuje wszystkie opublikowane zastosowania, niezależnie
+od filtrów, wyszukiwania i paginacji.
 
 ## Uruchomienie lokalne
 
@@ -115,7 +117,7 @@ Snapshot:
 - może być aktualizowany okazjonalnie,
 - nie powinien być używany do nadpisywania istniejącej bazy produkcyjnej.
 
-Dla odbiorcy publicznego źródłem aktualnych danych jest eksport CSV generowany
+Dla odbiorcy publicznego źródłem aktualnych danych jest eksport XLSX generowany
 przez działający serwis. Dla administratora wdrożonej instancji wiążącym stanem
 aplikacji jest jej bieżąca baza MySQL.
 

@@ -113,15 +113,30 @@
           <tr>
             <td>GPAI:</td>
             <td>
-              <div class="pill">{{ entry.deployment.get_gpai_status_display }}</div>
-              {% if entry.deployment.gpai_models %}
-              <div class="pill has-tooltip" tabindex="0">
+              {% with deployment=entry.deployment system=entry.deployment.ai_system %}
+              <div class="pill">{{ deployment.get_effective_gpai_status_display }}{% if deployment.gpai_status_differs_from_system %} (w tym wdrożeniu){% endif %}</div>
+              {% if system.gpai_models or deployment.gpai_models %}
+              <div class="pill has-tooltip" tabindex="0" aria-describedby="gpai-tooltip-{{ entry.public_id }}">
                 <span>?</span>
                 <div class="pill-tooltip-container" style="display: none">
-                  <div class="pill-tooltip">{{ entry.deployment.gpai_models }}</div>
+                  <div class="pill-tooltip" id="gpai-tooltip-{{ entry.public_id }}" role="tooltip">
+                    {% if system.gpai_models %}
+                    <div class="gpai-tooltip-section">
+                      <strong>System AI</strong>
+                      <div>{{ system.gpai_models|linebreaksbr }}</div>
+                    </div>
+                    {% endif %}
+                    {% if deployment.gpai_models %}
+                    <div class="gpai-tooltip-section">
+                      <strong>Wdrożenie</strong>
+                      <div>{{ deployment.gpai_models|linebreaksbr }}</div>
+                    </div>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
               {% endif %}
+              {% endwith %}
             </td>
           </tr>
 

@@ -273,6 +273,30 @@ class Deployment(Timestamped):
     def __str__(self):
         return f"{self.institution} – {self.ai_system}"
 
+    @property
+    def effective_gpai_status(self):
+        if self.gpai_status == AnswerStatus.UNKNOWN:
+            return self.ai_system.gpai_status
+        return self.gpai_status
+
+    def get_effective_gpai_status_display(self):
+        status = self.effective_gpai_status
+        return dict(AnswerStatus.choices).get(status, status)
+
+    @property
+    def gpai_status_differs_from_system(self):
+        system_status = self.ai_system.gpai_status
+        concrete_statuses = (
+            AnswerStatus.YES,
+            AnswerStatus.NO,
+            AnswerStatus.NOT_APPLICABLE,
+        )
+        return (
+            self.gpai_status in concrete_statuses
+            and system_status in concrete_statuses
+            and self.gpai_status != system_status
+        )
+
     class Meta:
         verbose_name = _("Wdrożenie systemu")
         verbose_name_plural = _("Wdrożenia systemów")
