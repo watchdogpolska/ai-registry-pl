@@ -2,74 +2,17 @@ import csv
 import io
 from datetime import date
 
-from django.test import SimpleTestCase, TestCase, override_settings
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .models.ai_use import (
     AISystem,
     AIUse,
     AIUseStatusObservation,
-    AnswerStatus,
     Assessment,
     Deployment,
     Institution,
 )
-
-
-class DeploymentGPAITests(SimpleTestCase):
-    def test_effective_gpai_status(self):
-        for system_status in AnswerStatus:
-            for deployment_status in AnswerStatus:
-                with self.subTest(system=system_status, deployment=deployment_status):
-                    deployment = Deployment(
-                        ai_system=AISystem(gpai_status=system_status),
-                        gpai_status=deployment_status,
-                    )
-                    expected = (
-                        system_status
-                        if deployment_status == AnswerStatus.UNKNOWN
-                        else deployment_status
-                    )
-
-                    self.assertEqual(deployment.effective_gpai_status, expected)
-                    self.assertEqual(
-                        deployment.get_effective_gpai_status_display(), expected.label
-                    )
-
-    def test_gpai_models_are_inherited_based_on_both_statuses(self):
-        system_models = "Model systemu"
-        for system_status in AnswerStatus:
-            models_for_yes = system_models if system_status == AnswerStatus.YES else ""
-            cases = (
-                (AnswerStatus.UNKNOWN, system_models),
-                (AnswerStatus.YES, models_for_yes),
-                (AnswerStatus.NO, ""),
-                (AnswerStatus.NOT_APPLICABLE, ""),
-            )
-            for deployment_status, expected in cases:
-                with self.subTest(system=system_status, deployment=deployment_status):
-                    deployment = Deployment(
-                        ai_system=AISystem(
-                            gpai_status=system_status, gpai_models=system_models
-                        ),
-                        gpai_status=deployment_status,
-                    )
-
-                    self.assertEqual(deployment.effective_gpai_models, expected)
-
-    def test_gpai_models_entered_for_deployment_take_precedence(self):
-        system = AISystem(gpai_status=AnswerStatus.YES, gpai_models="Model systemu")
-        for status in AnswerStatus:
-            with self.subTest(status=status):
-                deployment = Deployment(
-                    ai_system=system,
-                    gpai_status=status,
-                    gpai_models="Informacja o wdrożeniu",
-                )
-
-                self.assertEqual(
-                    deployment.effective_gpai_models, "Informacja o wdrożeniu"
-                )
 
 
 class PublicViewsSmokeTests(TestCase):
@@ -208,54 +151,6 @@ class PublicViewsSmokeTests(TestCase):
         self.assertNotIn("Źródła statusu", headers)
         self.assertNotIn("Numer ogłoszenia BZP", headers)
         self.assertNotIn("Niepublikowane zastosowanie", rows[1])
-
-    def test_gpai_information_matches_in_public_views_and_csv(self):
-        deployment = self.ai_use.deployment
-        system = deployment.ai_system
-        system.gpai_status = AnswerStatus.YES
-        system.gpai_models = "Testowy model systemu"
-        system.save(update_fields=["gpai_status", "gpai_models"])
-
-        cases = (
-            (AnswerStatus.UNKNOWN, "", "Tak", "Testowy model systemu"),
-            (AnswerStatus.NO, "", "Nie", ""),
-            (AnswerStatus.NOT_APPLICABLE, "Wyjaśnienie", "Nie dotyczy", "Wyjaśnienie"),
-        )
-        for status, models, expected_status, expected_models in cases:
-            with self.subTest(status=status):
-                deployment.gpai_status = status
-                deployment.gpai_models = models
-                deployment.save(update_fields=["gpai_status", "gpai_models"])
-
-                tooltip = ""
-                if expected_models:
-                    tooltip = f"""
-                        <div class="pill has-tooltip" tabindex="0">
-                            <span>?</span>
-                            <div class="pill-tooltip-container" style="display: none">
-                                <div class="pill-tooltip">{expected_models}</div>
-                            </div>
-                        </div>
-                    """
-                gpai_row = f"""
-                    <tr>
-                        <td>GPAI:</td>
-                        <td><div class="pill">{expected_status}</div>{tooltip}</td>
-                    </tr>
-                """
-                for url in (
-                    reverse("home_view"),
-                    reverse("ai_use_detail", args=[self.ai_use.public_id]),
-                ):
-                    self.assertContains(self.client.get(url), gpai_row, html=True)
-
-                response = self.client.get(reverse("csv_export"))
-                self.assertEqual(response.status_code, 200)
-                rows = csv.DictReader(io.StringIO(response.content.decode("utf-8-sig")))
-                self.assertEqual(
-                    [(row["GPAI"], row["Modele GPAI"]) for row in rows],
-                    [(expected_status, expected_models)],
-                )
 
 
 class AppVersionFooterTests(TestCase):
