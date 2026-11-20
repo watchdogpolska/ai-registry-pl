@@ -5,8 +5,6 @@
       <div class="footer-description">
         <h3>Rejestr wykorzystania AI w polskim sektorze publicznym</h3>
 
-        {% url 'csv_export' as export_url %}
-
         <p>
           Rejestr jest pierwszym uporządkowanym zbiorem danych o wykorzystaniu
           systemów sztucznej inteligencji w polskim sektorze publicznym. Dane
@@ -36,7 +34,8 @@
         </p>
 
         <p>
-          <a href="{{ export_url }}">Pobierz dane w formacie CSV</a>
+          <a href="{% url 'xlsx_export' %}">Pobierz cały rejestr (XLSX)</a><br />
+          Plik zawiera wszystkie opublikowane zastosowania, niezależnie od wybranych filtrów i wyszukiwania.
         </p>
       </div>
 
