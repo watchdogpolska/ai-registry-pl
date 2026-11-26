@@ -3,5 +3,5 @@
 black==26.10.1
 coverage==7.17.5
 django-debug-toolbar==8.0.0
-ipython==9.7.0
+ipython==9.18.1
 isort==9.0.2
