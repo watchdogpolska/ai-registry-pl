@@ -3,12 +3,26 @@
   "extends": ["config:recommended", "schedule:weekly", "group:allNonMajor"],
   "timezone": "Europe/Warsaw",
   "minimumReleaseAge": "7 days",
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "pip_requirements": {
+    "managerFilePatterns": ["/(^|/)requirements/[^/]+\\.txt$/"]
+  },
   "packageRules": [
     {
       "description": "Runtime versions (Python, Node, MySQL LTS) are bumped manually.",
       "matchDepNames": ["python", "node", "mysql"],
       "matchUpdateTypes": ["major", "minor"],
       "enabled": false
+    },
+    {
+      "matchPackageNames": ["django"],
+      "allowedVersions": "^5.2"
+    },
+    {
+      "matchPackageNames": ["caniuse-lite"],
+      "minimumReleaseAge": null
     }
   ]
 }
