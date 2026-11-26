@@ -3,6 +3,9 @@
   "extends": ["config:recommended", "schedule:weekly", "group:allNonMajor"],
   "timezone": "Europe/Warsaw",
   "minimumReleaseAge": "7 days",
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "pip_requirements": {
     "managerFilePatterns": ["/(^|/)requirements/[^/]+\\.txt$/"]
   },
