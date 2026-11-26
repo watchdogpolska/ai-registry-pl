@@ -1,14 +1,20 @@
-import csv
+from datetime import date
 
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import F, Prefetch, Q
 from django.http import HttpResponse
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import cache_page
 from django.views.generic import DetailView, TemplateView, View
+from openpyxl import Workbook
+from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
+from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.utils import get_column_letter
 
 from .models.ai_use import (
     AIUse,
@@ -188,7 +194,7 @@ class AIUseDetailView(DetailView):
         return get_public_ai_uses()
 
 
-class CSVExportView(View):
+class XLSXExportView(View):
     HEADERS = [
         "Nazwa zastosowania AI",
         "Instytucja",
@@ -203,8 +209,10 @@ class CSVExportView(View):
         "Komentarz do statusu",
         "Ryzyko AI Act",
         "Komentarz do ryzyka",
-        "GPAI",
-        "Modele GPAI",
+        "GPAI – system AI",
+        "GPAI – szczegóły systemu",
+        "GPAI – wdrożenie",
+        "GPAI – szczegóły wdrożenia",
         "Twórca / producent",
         "Dostawca",
         "Obszary",
@@ -240,15 +248,67 @@ class CSVExportView(View):
         "Źródła systemu",
     ]
 
+    HYPERLINK_COLUMNS = (
+        "Link do rekordu",
+        "Źródła zastosowania",
+        "Źródła wdrożenia",
+        "Źródła systemu",
+    )
+
+    @staticmethod
+    def _cell_value(value):
+        value = force_str(value, strings_only=True)
+        if isinstance(value, str):
+            value = ILLEGAL_CHARACTERS_RE.sub("", value)
+        return value
+
     @staticmethod
     def _format_sources(sources):
         values = []
+        first_url = None
         for source in sources:
             value = source.title
             if source.url:
                 value += f": {source.url}"
+                if first_url is None and source.url.lower().startswith(
+                    ("https://", "http://")
+                ):
+                    first_url = source.url
             values.append(value)
-        return "; ".join(values)
+        # A cell can link to one destination. Keep all URLs visible in its text.
+        return "; ".join(values), first_url
+
+    @staticmethod
+    def _format_sheet(sheet):
+        sheet.freeze_panes = "A2"
+        sheet.auto_filter.ref = sheet.dimensions
+        sheet.row_dimensions[1].height = 34
+        header_font = Font(bold=True, color="172B3A")
+        header_fill = PatternFill(fill_type="solid", fgColor="DCE8F1")
+        header_alignment = Alignment(
+            horizontal="left", vertical="center", wrap_text=True
+        )
+        body_alignment = Alignment(vertical="top", wrap_text=True)
+
+        for column_number, (header, *cells) in enumerate(sheet.columns, start=1):
+            header.font = header_font
+            header.fill = header_fill
+            header.alignment = header_alignment
+            width = len(header.value)
+            for cell in cells:
+                cell.alignment = body_alignment
+                if isinstance(cell.value, str):
+                    # Keep database values literal, including formulas and error codes.
+                    cell.data_type = "s"
+                    width = max(
+                        width, max(map(len, cell.value.splitlines()), default=0)
+                    )
+                elif isinstance(cell.value, date):
+                    cell.number_format = "dd.mm.yyyy"
+
+            sheet.column_dimensions[get_column_letter(column_number)].width = min(
+                max(width + 2, 12), 60
+            )
 
     def get(self, request, *args, **kwargs):
         entries = get_public_ai_uses().order_by(
@@ -256,18 +316,13 @@ class CSVExportView(View):
             "name",
         )
 
-        response = HttpResponse(
-            content_type="text/csv; charset=utf-8",
-            headers={
-                "Content-Disposition": (
-                    'attachment; filename="rejestr-zastosowan-ai.csv"'
-                )
-            },
-        )
-        response.write("\ufeff")
-
-        writer = csv.writer(response)
-        writer.writerow(self.HEADERS)
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = "Zastosowania AI"
+        sheet.append(self.HEADERS)
+        hyperlink_indices = [
+            self.HEADERS.index(header) for header in self.HYPERLINK_COLUMNS
+        ]
 
         for entry in entries:
             deployment = entry.deployment
@@ -278,76 +333,103 @@ class CSVExportView(View):
             record_url = request.build_absolute_uri(
                 reverse("ai_use_detail", args=[entry.public_id])
             )
-
-            writer.writerow(
-                [
-                    entry.name,
-                    deployment.institution.name,
-                    ai_system.name,
-                    record_url,
-                    entry.purpose,
-                    entry.use_start.isoformat() if entry.use_start else "",
-                    entry.use_end.isoformat() if entry.use_end else "",
-                    (
-                        latest_status.get_usage_status_display()
-                        if latest_status
-                        else "Brak informacji"
-                    ),
-                    latest_status.observed_on.isoformat() if latest_status else "",
-                    (
-                        latest_status.get_authority_ai_status_display()
-                        if latest_status
-                        else "Brak informacji"
-                    ),
-                    latest_status.comment if latest_status else "",
-                    entry.get_risk_classification_display(),
-                    entry.risk_comment,
-                    deployment.get_gpai_status_display(),
-                    deployment.gpai_models,
-                    ai_system.developer,
-                    deployment.supplier,
-                    "; ".join(str(area) for area in entry.areas.all()),
-                    "; ".join(str(tag) for tag in entry.tags.all()),
-                    entry.description,
-                    entry.ai_use_description,
-                    entry.process_name,
-                    entry.process_description,
-                    entry.process_stage,
-                    entry.decision_or_action,
-                    entry.ai_role,
-                    entry.human_role,
-                    ai_system.purpose,
-                    ai_system.description,
-                    dpia.get_status_display() if dpia else "Brak informacji",
-                    dpia.comment if dpia else "",
-                    fria.get_status_display() if fria else "Brak informacji",
-                    fria.comment if fria else "",
-                    deployment.implementation_cost,
-                    deployment.implementation_cost_comment,
-                    deployment.annual_maintenance_cost,
-                    deployment.annual_maintenance_cost_comment,
-                    (
-                        deployment.license_start.isoformat()
-                        if deployment.license_start
-                        else ""
-                    ),
-                    (
-                        deployment.license_end.isoformat()
-                        if deployment.license_end
-                        else ""
-                    ),
-                    deployment.license_comment,
-                    deployment.get_user_documentation_status_display(),
-                    deployment.user_documentation_comment,
-                    deployment.get_public_information_status_display(),
-                    deployment.public_information_comment,
-                    deployment.get_public_procurement_status_display(),
-                    self._format_sources(entry.sources.all()),
-                    self._format_sources(deployment.sources.all()),
-                    self._format_sources(ai_system.sources.all()),
-                ]
+            entry_sources, entry_sources_url = self._format_sources(entry.sources.all())
+            deployment_sources, deployment_sources_url = self._format_sources(
+                deployment.sources.all()
+            )
+            system_sources, system_sources_url = self._format_sources(
+                ai_system.sources.all()
             )
 
+            values = [
+                entry.name,
+                deployment.institution.name,
+                ai_system.name,
+                record_url,
+                entry.purpose,
+                entry.use_start,
+                entry.use_end,
+                (
+                    latest_status.get_usage_status_display()
+                    if latest_status
+                    else "Brak informacji"
+                ),
+                latest_status.observed_on if latest_status else None,
+                (
+                    latest_status.get_authority_ai_status_display()
+                    if latest_status
+                    else "Brak informacji"
+                ),
+                latest_status.comment if latest_status else "",
+                entry.get_risk_classification_display(),
+                entry.risk_comment,
+                ai_system.get_gpai_status_display(),
+                ai_system.gpai_models,
+                deployment.get_gpai_status_display(),
+                deployment.gpai_models,
+                ai_system.developer,
+                deployment.supplier,
+                "; ".join(str(area) for area in entry.areas.all()),
+                "; ".join(str(tag) for tag in entry.tags.all()),
+                entry.description,
+                entry.ai_use_description,
+                entry.process_name,
+                entry.process_description,
+                entry.process_stage,
+                entry.decision_or_action,
+                entry.ai_role,
+                entry.human_role,
+                ai_system.purpose,
+                ai_system.description,
+                dpia.get_status_display() if dpia else "Brak informacji",
+                dpia.comment if dpia else "",
+                fria.get_status_display() if fria else "Brak informacji",
+                fria.comment if fria else "",
+                deployment.implementation_cost,
+                deployment.implementation_cost_comment,
+                deployment.annual_maintenance_cost,
+                deployment.annual_maintenance_cost_comment,
+                deployment.license_start,
+                deployment.license_end,
+                deployment.license_comment,
+                deployment.get_user_documentation_status_display(),
+                deployment.user_documentation_comment,
+                deployment.get_public_information_status_display(),
+                deployment.public_information_comment,
+                deployment.get_public_procurement_status_display(),
+                entry_sources,
+                deployment_sources,
+                system_sources,
+            ]
+            sheet.append([self._cell_value(value) for value in values])
+            row = sheet[sheet.max_row]
+            for index, url in zip(
+                hyperlink_indices,
+                (
+                    record_url,
+                    entry_sources_url,
+                    deployment_sources_url,
+                    system_sources_url,
+                ),
+            ):
+                if url:
+                    cell = row[index]
+                    cell.hyperlink = url
+                    cell.style = "Hyperlink"
+
+        self._format_sheet(sheet)
+        timestamp = timezone.localtime(timezone.now()).strftime("%Y%m%d_%H%M%S")
+        response = HttpResponse(
+            content_type=(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            ),
+            headers={
+                "Content-Disposition": (
+                    f'attachment; filename="rejestr-zastosowan-ai-{timestamp}.xlsx"'
+                )
+            },
+        )
+        workbook.save(response)
         return response
 
 

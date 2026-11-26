@@ -19,7 +19,7 @@ administracyjny Django.
 Repozytorium zawiera `data/registry.json`, czyli startowy snapshot publicznych
 danych rejestru. Może on posłużyć do inicjalizacji nowej bazy, ale nie ma
 gwarancji aktualności względem działającej instancji produkcyjnej. Publicznym
-źródłem bieżących danych jest eksport CSV generowany przez działający serwis.
+źródłem bieżących danych jest eksport XLSX generowany przez działający serwis.
 
 ## Konfiguracja
 
@@ -248,7 +248,7 @@ Snapshot:
 - nie służy do aktualizacji istniejącej bazy.
 
 Aktualne dane publiczne należy pobierać z działającego serwisu za pomocą
-eksportu CSV.
+eksportu XLSX.
 
 ### Odświeżanie snapshotu
 
@@ -329,7 +329,7 @@ Przy zwykłej aktualizacji aplikacji:
 2. zbuduj lub pobierz nowy obraz aplikacji,
 3. uruchom `python manage.py migrate --noinput` przy użyciu nowego obrazu,
 4. zrestartuj lub zastąp kontener aplikacji,
-5. sprawdź stronę główną, przykładowy rekord, panel Django i eksport CSV.
+5. sprawdź stronę główną, przykładowy rekord, panel Django i eksport XLSX.
 
 **Nie ładuj snapshotu `registry.json` podczas zwykłej aktualizacji.**
 
@@ -343,7 +343,7 @@ Przed wdrożeniem dana rewizja powinna przejść GitHub Actions. CI sprawdza:
 - formatowanie Black i isort,
 - migracje na pustej bazie MySQL 8.4,
 - Django system checks,
-- testy smoke publicznych widoków i eksportu CSV,
+- testy smoke publicznych widoków i eksportu XLSX,
 - test eksportu i odtworzenia snapshotu rejestru,
 - `collectstatic`,
 - budowanie produkcyjnego obrazu Docker.

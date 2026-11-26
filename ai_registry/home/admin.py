@@ -110,10 +110,16 @@ class DeploymentAdmin(admin.ModelAdmin):
         (
             _("MODELE OGÓLNEGO PRZEZNACZENIA (GPAI)"),
             {
+                "description": _(
+                    "Jeśli wybierzesz „Brak informacji”, w rejestrze wyświetli się "
+                    "status zapisany przy systemie AI. Konkretna odpowiedź dla "
+                    "wdrożenia ma pierwszeństwo. Jeśli system i wdrożenie mają "
+                    "dodatkowe opisy GPAI, oba pojawią się razem."
+                ),
                 "fields": [
                     "gpai_status",
                     "gpai_models",
-                ]
+                ],
             },
         ),
         (

@@ -8,7 +8,7 @@ o ile przy konkretnym materiale nie wskazano inaczej.
 Dotyczy to w szczególności:
 
 - startowego snapshotu `ai_registry/data/registry.json`,
-- publicznego eksportu CSV generowanego przez działający serwis.
+- publicznego eksportu XLSX generowanego przez działający serwis.
 
 Licencja CC BY 4.0 pozwala kopiować, rozpowszechniać, przetwarzać i wykorzystywać
 dane, również komercyjnie, pod warunkiem odpowiedniego oznaczenia autorstwa,
