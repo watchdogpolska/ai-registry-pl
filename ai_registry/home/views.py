@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import cache_page
 from django.views.generic import DetailView, TemplateView, View
 from openpyxl import Workbook
+from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
@@ -247,6 +248,20 @@ class XLSXExportView(View):
         "Źródła systemu",
     ]
 
+    HYPERLINK_COLUMNS = (
+        "Link do rekordu",
+        "Źródła zastosowania",
+        "Źródła wdrożenia",
+        "Źródła systemu",
+    )
+
+    @staticmethod
+    def _cell_value(value):
+        value = force_str(value, strings_only=True)
+        if isinstance(value, str):
+            value = ILLEGAL_CHARACTERS_RE.sub("", value)
+        return value
+
     @staticmethod
     def _format_sources(sources):
         values = []
@@ -305,6 +320,9 @@ class XLSXExportView(View):
         sheet = workbook.active
         sheet.title = "Zastosowania AI"
         sheet.append(self.HEADERS)
+        hyperlink_indices = [
+            self.HEADERS.index(header) for header in self.HYPERLINK_COLUMNS
+        ]
 
         for entry in entries:
             deployment = entry.deployment
@@ -383,10 +401,10 @@ class XLSXExportView(View):
                 deployment_sources,
                 system_sources,
             ]
-            sheet.append([force_str(value, strings_only=True) for value in values])
+            sheet.append([self._cell_value(value) for value in values])
             row = sheet[sheet.max_row]
-            for cell, url in zip(
-                (row[3], *row[-3:]),
+            for index, url in zip(
+                hyperlink_indices,
                 (
                     record_url,
                     entry_sources_url,
@@ -395,6 +413,7 @@ class XLSXExportView(View):
                 ),
             ):
                 if url:
+                    cell = row[index]
                     cell.hyperlink = url
                     cell.style = "Hyperlink"
 

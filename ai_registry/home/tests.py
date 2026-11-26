@@ -368,6 +368,15 @@ class PublicViewsSmokeTests(TestCase):
             sheet.column_dimensions["A"].width, sheet.column_dimensions["B"].width
         )
 
+    def test_xlsx_export_removes_illegal_control_characters(self):
+        AIUse.objects.filter(pk=self.ai_use.pk).update(
+            description="Tekst\x0bz Worda\x0c\x1f\nDrugi akapit."
+        )
+        sheet = self.assert_xlsx_response(self.client.get(reverse("xlsx_export")))
+        headers, values = sheet.values
+        row = dict(zip(headers, values))
+        self.assertEqual(row["Opis zastosowania"], "Tekstz Worda\nDrugi akapit.")
+
     def test_xlsx_export_of_empty_registry_has_headers(self):
         AIUse.objects.update(published=False)
         sheet = self.assert_xlsx_response(self.client.get(reverse("xlsx_export")))
