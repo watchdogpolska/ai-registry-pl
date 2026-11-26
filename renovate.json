@@ -12,6 +12,14 @@
       "matchDepNames": ["python", "node", "mysql"],
       "matchUpdateTypes": ["major", "minor"],
       "enabled": false
+    },
+    {
+      "matchPackageNames": ["django"],
+      "allowedVersions": "^5.2"
+    },
+    {
+      "matchPackageNames": ["caniuse-lite"],
+      "minimumReleaseAge": null
     }
   ]
 }
