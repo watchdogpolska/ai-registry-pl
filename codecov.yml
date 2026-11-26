@@ -14,4 +14,3 @@ fixes:
 
 comment:
   layout: "condensed_header, diff, files"
-  require_changes: true
