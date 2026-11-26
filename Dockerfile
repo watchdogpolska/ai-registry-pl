@@ -92,6 +92,5 @@ ENV APP_VERSION=$APP_VERSION \
     APP_COMMIT=$APP_COMMIT
 
 USER django
-EXPOSE 8000
 
 CMD ["gunicorn", "ai_registry.wsgi:application", "--bind", "0.0.0.0:8000", "--access-logfile", "-", "--error-logfile", "-"]

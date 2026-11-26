@@ -285,7 +285,7 @@ kontenera. Nazwa `mysql` z pliku `.env.example` jest rozpoznawana w sieci
 referencyjnego Docker Compose, ale nie automatycznie przy samodzielnym
 `docker run`.
 
-Obraz uruchamia Gunicorn i wystawia port 8000. Docelowa infrastruktura może
+Obraz uruchamia Gunicorn nasłuchujący na porcie 8000. Docelowa infrastruktura może
 zmienić polecenie startowe, liczbę workerów, sieć, health checki i limity
 zasobów bez modyfikowania kodu aplikacji.
 
