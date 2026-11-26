@@ -1,0 +1,13 @@
+[run]
+branch = True
+relative_files = True
+source = .
+omit =
+    manage.py
+    ipython_config.py
+    */tests.py
+    */test_*.py
+    */migrations/*
+    ai_registry/settings/*
+    ai_registry/wsgi.py
+    ai_registry/asgi.py

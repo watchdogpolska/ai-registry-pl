@@ -1,5 +1,7 @@
 # Rejestr wykorzystania AI w polskim sektorze publicznym
 
+[![codecov](https://codecov.io/gh/watchdogpolska/ai-registry-pl/branch/main/graph/badge.svg)](https://codecov.io/gh/watchdogpolska/ai-registry-pl)
+
 Rejestr systemów i zastosowań sztucznej inteligencji w polskim sektorze
 publicznym, prowadzony przez
 [Sieć Obywatelską Watchdog Polska](https://siecobywatelska.pl/).

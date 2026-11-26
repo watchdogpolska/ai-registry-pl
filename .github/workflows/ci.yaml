@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
 
 jobs:
@@ -70,9 +71,20 @@ jobs:
         working-directory: ai_registry
         run: python manage.py check
 
-      - name: Run tests
+      - name: Run tests with coverage
         working-directory: ai_registry
-        run: python manage.py test
+        run: |
+          coverage run manage.py test
+          coverage report
+          coverage xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ai_registry/coverage.xml
+          disable_search: true
+          fail_ci_if_error: true
 
   docker:
     name: Production Docker image
