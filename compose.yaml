@@ -33,6 +33,7 @@ services:
     volumes:
       - ./ai_registry:/app:delegated,rw
       - ./ai_registry/ipython_config.py:/tmp/ipython/profile_default/ipython_config.py:delegated,rw
+      - ./logs:/app/logs:delegated,rw
     ports:
       - "8001:8000"
     environment:
