@@ -20,10 +20,20 @@
         <span>{{ entry.purpose }}</span>
       {% endif %}
     </h2>
-    <div class="entry-time-in-use">
-      {% if entry.use_start %}od {{ entry.use_start|date:"j.m.Y" }}{% endif %}
-      {% if entry.use_end %} – {{ entry.use_end|date:"j.m.Y" }}{% endif %}
-    </div>
+    {% if entry.use_start or entry.use_end %}
+      <div class="entry-time-in-use">
+        <span class="entry-time-label">Okres stosowania</span>
+        <span class="entry-time-dates">
+          {% if entry.use_start and entry.use_end %}
+            {{ entry.use_start|date:"j.m.Y" }}&nbsp;– {{ entry.use_end|date:"j.m.Y" }}
+          {% elif entry.use_start %}
+            od {{ entry.use_start|date:"j.m.Y" }}
+          {% else %}
+            do {{ entry.use_end|date:"j.m.Y" }}
+          {% endif %}
+        </span>
+      </div>
+    {% endif %}
   </div>
   <hr />
 

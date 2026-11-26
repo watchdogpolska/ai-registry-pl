@@ -50,6 +50,11 @@
       margin: 0;
       font-family: var(--font-main);
 
+      &:has(+ .entry-time-in-use) {
+        min-inline-size: 0;
+        overflow-wrap: anywhere;
+      }
+
       strong,
       span {
         @include breakpoints.media-breakpoint-up(md) {
@@ -90,14 +95,32 @@
     }
 
     .entry-time-in-use {
-      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      align-self: flex-start;
+      gap: 0.2rem;
+      flex: none;
+      max-inline-size: 100%;
+      margin-inline-start: auto;
       font-family: var(--font-main);
-      font-size: 0.875rem;
-      line-height: 1;
-      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+      text-align: right;
 
-      @include breakpoints.media-breakpoint-up(md) {
-        line-height: 2.1rem;
+      .entry-time-label {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+      }
+
+      .entry-time-dates {
+        max-inline-size: 100%;
+        padding: 0.3em 0.7em;
+        background: var(--bg-color);
+        border-radius: 1em;
+        font-size: 0.75rem;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
       }
     }
   }
