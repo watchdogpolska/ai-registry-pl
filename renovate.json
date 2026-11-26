@@ -3,6 +3,9 @@
   "extends": ["config:recommended", "schedule:weekly", "group:allNonMajor"],
   "timezone": "Europe/Warsaw",
   "minimumReleaseAge": "7 days",
+  "pip_requirements": {
+    "managerFilePatterns": ["/(^|/)requirements/[^/]+\\.txt$/"]
+  },
   "packageRules": [
     {
       "description": "Runtime versions (Python, Node, MySQL LTS) are bumped manually.",
