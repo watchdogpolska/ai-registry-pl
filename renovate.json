@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "schedule:weekly", "group:allNonMajor"],
+  "timezone": "Europe/Warsaw",
+  "minimumReleaseAge": "7 days",
+  "packageRules": [
+    {
+      "description": "Runtime versions (Python, Node, MySQL LTS) are bumped manually.",
+      "matchDepNames": ["python", "node", "mysql"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    }
+  ]
+}
